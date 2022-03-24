@@ -1,40 +1,30 @@
 import time
-from pathlib import Path
-from typing import Iterable, Optional, Union
+from nilearn.datasets import fetch_neurovault_ids
 
-import asyncio
-import click
-from tqdm.auto import tqdm
+from neurovault_downloader.asyncio_downloader import asyncio_download_neurovault
+from neurovault_downloader.collection_url_downloader import (
+    collection_page_download,
+    parallel_collection_page_download_neurovault,
+)
 
+collection_ids = [5412, 5317, 5472, 5299]
 
-async def _download_file(url, target_dir, semaphore):
-    async with semaphore:
-        print(url)
-        await asyncio.sleep(3)
+start_time = time.time()
+fetch_neurovault_ids(collection_ids=collection_ids, data_dir="nilearn_dl")
+end_time = time.time()
+print(f"Nilearn {end_time - start_time}")
 
-async def _download_files(urls, target_dir):
-    semaphore = asyncio.Semaphore(5)
+start_time = time.time()
+asyncio_download_neurovault(collection_ids=collection_ids, semaphore_limit=4)
+end_time = time.time()
+print(f"Asyncio {end_time - start_time}")
 
-    download_tasks = [_download_file(url, target_dir, semaphore) for url in urls]
+start_time = time.time()
+collection_page_download(collection_ids=collection_ids)
+end_time = time.time()
+print(f"Collection page {end_time - start_time}")
 
-    await asyncio.gather(*download_tasks)
-
-
-def download() -> None:
-    target_dir = Path(__file__).parent
-
-    kwargs = {
-        "urls": [f"Hello {index}" for index in range(10)],
-        "target_dir": ".",
-    }
-    asyncio.run(_download_files(**kwargs))
-
-
-@click.command()
-def download_cli():
-    """Download datasets from OpenNeuro."""
-    download()
-
-
-if __name__ == "__main__":
-    download_cli()
+start_time = time.time()
+parallel_collection_page_download_neurovault(collection_ids=collection_ids, n_jobs=4)
+end_time = time.time()
+print(f"Parallel collection page {end_time - start_time}")
