@@ -31,10 +31,6 @@ def format_neurovault_download_url(collection_id):
     return f"https://neurovault.org/collections/{collection_id}/download"
 
 
-# def unzip_downloaded_collections(collection_ids):
-#     for collection_id in collection_ids:
-#         with zipfile.ZipFile(target_dir)
-
 def asyncio_download_neurovault(collection_ids, semaphore_limit=SEMAPHORE_LIMIT):
     target_dir = Path(__file__).parent / "asyncio_dl"
     target_dir.mkdir(exist_ok=True)
