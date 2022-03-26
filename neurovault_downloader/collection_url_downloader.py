@@ -17,7 +17,7 @@ def format_neurovault_download_url(collection_id):
 
 
 def _download_collection(collection_id, target_dir):
-    collection_dir = target_dir / collection_id
+    collection_dir = target_dir / str(collection_id)
     images_dir = collection_dir / "images"
     images_dir.mkdir(exist_ok=True, parents=True)
 
